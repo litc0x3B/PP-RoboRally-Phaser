@@ -61,10 +61,10 @@ export default class CardsScene extends Phaser.Scene
     }
     
     //create stack of cards
-    cardsCreate(x, y, width, height, margin){
+    cardsCreate(amount, x, y, width, height, margin){
         var frames = this.textures.get('cards').getFrameNames();
 
-        for (var i = 0; i < 7; i++)
+        for (var i = 0; i < amount; i++)
         {   
             var card = new Card(this, x, y, 'cards', Phaser.Math.RND.pick(frames));
             this.add.existing(card);
@@ -72,6 +72,18 @@ export default class CardsScene extends Phaser.Scene
             x += margin + width;
         }
     }
+
+    dropZonesCreate(amount, x, y, width, height, margin){
+
+
+        for (var i = 0; i < amount; i++){
+            let dropZone = new DropZone (this, x, y, width + margin, height + margin);
+            this.add.existing(dropZone);
+            this.zones.push(dropZone);
+            x += width + margin;
+        }
+    }
+
 
     //cards movement logic
     cardsMovement(){
@@ -123,25 +135,15 @@ export default class CardsScene extends Phaser.Scene
     }
     
     //create DropZones for cards
-    dropZonesCreate(x, y, width, height, margin){
-
-
-        for (var i = 0; i < 5; i++){
-            let dropZone = new DropZone (this, x, y, width + margin, height + margin);
-            this.add.existing(dropZone);
-            this.zones.push(dropZone);
-            x += width + margin;
-        }
-    }
-
+    
     create ()
     {
         //cards sizes
         var width = 140;
         var height = 190;
 
-        this.cardsCreate(100, 450, width, height, 3);
-        this.dropZonesCreate(100, 200, width, height, 2);
+        this.cardsCreate(8, 100, 450, width, height, 3);
+        this.dropZonesCreate(5, 100, 200, width, height, 2);
         this.cardsMovement();
         
         //*********************debug********************
