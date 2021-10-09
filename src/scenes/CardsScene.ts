@@ -1,6 +1,5 @@
 import Phaser from 'phaser'
 
-
 class Card extends Phaser.GameObjects.Image{
     startX: number;
     startY: number;
@@ -40,6 +39,8 @@ class DropZone extends Phaser.GameObjects.Zone{
         this.graphics.lineStyle(2, 0x592D2D);
         this.graphics.strokeRect(this.x - this.input.hitArea.width / 2, this.y - this.input.hitArea.height / 2, this.input.hitArea.width, this.input.hitArea.height);
     }
+
+
 }
 
 export default class CardsScene extends Phaser.Scene
@@ -58,51 +59,22 @@ export default class CardsScene extends Phaser.Scene
         this.load.setBaseURL('http://labs.phaser.io')
         this.load.atlas('cards', 'assets/atlas/cards.png', 'assets/atlas/cards.json');
     }
-
-    create ()
-    {
-        //********************************Create a stack of random cards*************************************
+    
+    //create stack of cards
+    cardsCreate(x, y, width, height, margin){
         var frames = this.textures.get('cards').getFrameNames();
 
-        //cards sizes
-        var width = 150;
-        var height = 200;
-
-        var x = 100;
-        var y = 450;
         for (var i = 0; i < 7; i++)
         {   
             var card = new Card(this, x, y, 'cards', Phaser.Math.RND.pick(frames));
             this.add.existing(card);
 
-            x += 10 + width;
+            x += margin + width;
         }
-        //*************************************************************************************************
-        
-        
-        //************************************Drop zones***********************************
+    }
 
-        //zones spawining starting point
-        var x = 200;
-        var y = height;
-
-        for (var i = 0; i < 5; i++){
-            let dropZone = new DropZone (this, x, y, width + 10, height + 10);
-            this.add.existing(dropZone);
-            this.zones.push(dropZone);
-            x += width + 10;
-        }
-        //***********************************************************************************
-        
-        //*********************debug********************
-        this.output = []
-        for (var i = 0; i < this.zones.length; i++){
-            this.output.push(this.add.text(1000, 100 + i * 20, "aboba"));
-        }
-        ////////////////////////////////////////////////
-
-
-        ///////////////////////////////cards moving events/////////////////////////////////////////////
+    //cards movement logic
+    cardsMovement(){
         this.input.on('dragstart', (pointer, gameObject) => {
 
             this.children.bringToTop(gameObject);
@@ -124,33 +96,60 @@ export default class CardsScene extends Phaser.Scene
 
         var target: DropZone; 
         this.input.on('drop', function (pointer, gameObject, _target) {
-
-            gameObject.x = _target.x;
-            gameObject.y = _target.y;
-
             target = _target;
-
         });
 
         this.input.on('dragend', (pointer, gameObject, dropped) => {
 
             if (!dropped)
             {   
-                gameObject.x = gameObject.startX;
-                gameObject.y = gameObject.startY; 
+                if (target == null || (gameObject.x != target.x && gameObject.y != target.y)){
+                    gameObject.x = gameObject.startX;
+                    gameObject.y = gameObject.startY; 
+                }
             }
             else
             {   
-                if (target.card != gameObject){
-                    target.card.x = target.card.startX;
-                    target.card.y = target.card.startY;
-                }
+                target.card.x = target.card.startX;
+                target.card.y = target.card.startY;
+                
                 target.card = gameObject;
+
+                gameObject.x = target.x;
+                gameObject.y = target.y;
             }
 
         });
-        ////////////////////////////////////////////////////////////////////////////
+    }
+    
+    //create DropZones for cards
+    dropZonesCreate(x, y, width, height, margin){
 
+
+        for (var i = 0; i < 5; i++){
+            let dropZone = new DropZone (this, x, y, width + margin, height + margin);
+            this.add.existing(dropZone);
+            this.zones.push(dropZone);
+            x += width + margin;
+        }
+    }
+
+    create ()
+    {
+        //cards sizes
+        var width = 140;
+        var height = 190;
+
+        this.cardsCreate(100, 450, width, height, 3);
+        this.dropZonesCreate(100, 200, width, height, 2);
+        this.cardsMovement();
+        
+        //*********************debug********************
+        for (var i = 0; i < this.zones.length; i++){
+            this.output.push(this.add.text(1000, 100 + i * 20, "aboba"));
+        }
+        ////////////////////////////////////////////////
+        
     }
 
     update(){
