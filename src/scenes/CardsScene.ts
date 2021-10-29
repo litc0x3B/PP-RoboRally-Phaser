@@ -1,10 +1,11 @@
-import Phaser from 'phaser'
+import Phaser, { Input } from 'phaser'
 
 class Card extends Phaser.GameObjects.Image{
     startX: number;
     startY: number;
     cardType: string;
     scene: Phaser.Scene;
+    draggingFrom: DropZone | null = null;
 
     constructor(_scene :Phaser.Scene, x: number, y: number, texture: string, frame: string){
         super(_scene, x, y, texture, frame);
@@ -19,11 +20,48 @@ class Card extends Phaser.GameObjects.Image{
         this.scene.input.setDraggable(this);
     }
 
+    dragStart(dropZone: DropZone | null){
+        if (dropZone && dropZone.card && this === dropZone.card){
+            this.draggingFrom = dropZone;
+            dropZone.card = null;
+            console.debug("replacing");
+        }
+    }
+
+    setDropZone(dropZone: DropZone | null) {
+        if(dropZone) {
+
+            if(this.draggingFrom){
+                this.draggingFrom.card = dropZone.card;
+            }
+
+            if (dropZone.card){
+                dropZone.card.x = this.input.dragStartX;
+                dropZone.card.y = this.input.dragStartY;
+
+                [dropZone.card.startX, this.startX] = [this.startX, dropZone.card.startX];
+                [dropZone.card.startY, this.startY] = [this.startY, dropZone.card.startY];
+            }
+
+            dropZone.card = this;
+
+            this.x = dropZone.x;
+            this.y = dropZone.y;
+        }
+        else if (this.x != this.input.dragStartX && this.y != this.input.dragStartY) {
+            this.x = this.startX;
+            this.y = this.startY;
+            
+        }
+
+        this.draggingFrom = null;
+    }
+
 
 }
 
 class DropZone extends Phaser.GameObjects.Zone{
-    card: Card;
+    card: Card | null = null;
     scene: Phaser.Scene;
     graphics: Phaser.GameObjects.Graphics;
 
@@ -32,7 +70,6 @@ class DropZone extends Phaser.GameObjects.Zone{
         this.setRectangleDropZone(width, height);
         this.scene = _scene;
         this.graphics = _scene.add.graphics();
-        this.card = new Card(this.scene, 0, 0, 'empty', 'empty');
     }
 
     addedToScene(){
@@ -40,6 +77,12 @@ class DropZone extends Phaser.GameObjects.Zone{
         this.graphics.strokeRect(this.x - this.input.hitArea.width / 2, this.y - this.input.hitArea.height / 2, this.input.hitArea.width, this.input.hitArea.height);
     }
 
+    getCardType(): string{
+        if (this.card?.cardType)
+            return this.card.cardType;
+        else
+            return "empty";
+    }
 
 }
 
@@ -75,7 +118,6 @@ export default class CardsScene extends Phaser.Scene
 
     dropZonesCreate(amount, x, y, width, height, margin){
 
-
         for (var i = 0; i < amount; i++){
             let dropZone = new DropZone (this, x, y, width + margin, height + margin);
             this.add.existing(dropZone);
@@ -101,41 +143,25 @@ export default class CardsScene extends Phaser.Scene
         });
 
         this.input.on('dragleave', (pointer, gameObject, _target) => {
-            if (_target.card === gameObject){
-                _target.card = new Card(this, 0, 0, 'empty', 'empty');
-            }
+            gameObject?.dragStart(_target);
         });
 
-        var target: DropZone; 
+        var target: DropZone | null; 
         this.input.on('drop', function (pointer, gameObject, _target) {
             target = _target;
         });
 
-        this.input.on('dragend', (pointer, gameObject, dropped) => {
-
-            if (!dropped)
-            {   
-                if (target == null || (gameObject.x != target.x && gameObject.y != target.y)){
-                    gameObject.x = gameObject.startX;
-                    gameObject.y = gameObject.startY; 
-                }
-            }
+        this.input.on('dragend', function (pointer, gameObject, dropped) {
+            if(dropped)
+                gameObject?.setDropZone(target);
             else
-            {   
-                target.card.x = target.card.startX;
-                target.card.y = target.card.startY;
-                
-                target.card = gameObject;
-
-                gameObject.x = target.x;
-                gameObject.y = target.y;
-            }
-
+                gameObject?.setDropZone(null);
         });
+
+
     }
     
     //create DropZones for cards
-    
     create ()
     {
         //cards sizes
@@ -156,10 +182,8 @@ export default class CardsScene extends Phaser.Scene
 
     update(){
         /////////////////////////////////debug/////////////////////////
-        for (var i = 0; i < this.output.length; i++){
-            if (this.zones[i].card != null)
-                this.output[i].text = this.zones[i].card.cardType;
-                
+         for (var i = 0; i < this.output.length; i++){
+                this.output[i].text = this.zones[i].getCardType();     
         }
         ///////////////////////////////////////////////////////////////////
     }
