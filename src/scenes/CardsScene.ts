@@ -1,4 +1,5 @@
-import Phaser, { Input } from 'phaser'
+import Phaser, { Game, Input } from 'phaser'
+import game from '~/main';
 
 class Card extends Phaser.GameObjects.Image{
     startX: number;
@@ -28,6 +29,18 @@ class Card extends Phaser.GameObjects.Image{
         }
     }
 
+
+
+    move(object: Card, end_x: number, end_y: number){
+        this.scene.add.tween({
+            targets: object,
+            duration: 300,
+            ease: 'Power4',
+            x: end_x,
+            y: end_y
+        });
+    };
+
     setDropZone(dropZone: DropZone | null) {
         if(dropZone) {
 
@@ -36,22 +49,18 @@ class Card extends Phaser.GameObjects.Image{
             }
 
             if (dropZone.card){
-                dropZone.card.x = this.input.dragStartX;
-                dropZone.card.y = this.input.dragStartY;
+                this.move(dropZone.card, this.input.dragStartX, this.input.dragStartY);
 
                 [dropZone.card.startX, this.startX] = [this.startX, dropZone.card.startX];
                 [dropZone.card.startY, this.startY] = [this.startY, dropZone.card.startY];
             }
 
             dropZone.card = this;
-
-            this.x = dropZone.x;
-            this.y = dropZone.y;
+            
+            this.move(this, dropZone.x, dropZone.y);
         }
         else if (this.x != this.input.dragStartX && this.y != this.input.dragStartY) {
-            this.x = this.startX;
-            this.y = this.startY;
-            
+            this.move(this, this.startX, this.startY);
         }
 
         this.draggingFrom = null;
@@ -169,7 +178,7 @@ export default class CardsScene extends Phaser.Scene
         var height = 190;
 
         this.cardsCreate(8, 100, 450, width, height, 3);
-        this.dropZonesCreate(5, 100, 200, width, height, 2);
+        this.dropZonesCreate(5, 100, 200, width, height, 10);
         this.cardsMovement();
         
         //*********************debug********************

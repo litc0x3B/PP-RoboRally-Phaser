@@ -1,7 +1,5 @@
 import Phaser from 'phaser'
 
-import CardsScene from './scenes/CardsScene'
-
 const config = {
 	type: Phaser.AUTO,
 	width: 2000,
@@ -16,4 +14,8 @@ const config = {
 	scene: [CardsScene]
 }
 
-export default new Phaser.Game(config)
+var game = new Phaser.Game(config);
+
+import CardsScene from './scenes/CardsScene'
+
+export default game;
