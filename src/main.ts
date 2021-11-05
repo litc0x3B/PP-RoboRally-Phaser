@@ -1,9 +1,12 @@
 import Phaser from 'phaser'
 
+import CardsScene from './scenes/CardsScene';
+import BoardScene from './scenes/BoardScene';
+
 const config = {
 	type: Phaser.AUTO,
-	width: 2000,
-	height: 600,
+	width: 1920,
+	height: 900,
 	backgroundColor: '#148C6A',
 	physics: {
 		default: 'arcade',
@@ -11,12 +14,10 @@ const config = {
 			gravity: { y: 0}
 		}
 	},
-	scene: [BoardScene]
+	scene: [BoardScene, CardsScene]
 }
 
-var game = new Phaser.Game(config);
 
-//import CardsScene from './scenes/CardsScene';
-import BoardScene from './scenes/BoardScene';
+var game = new Phaser.Game(config);
 
 export default game;

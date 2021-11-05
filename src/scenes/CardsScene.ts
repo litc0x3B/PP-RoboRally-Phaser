@@ -29,8 +29,6 @@ class Card extends Phaser.GameObjects.Image{
         }
     }
 
-
-
     move(object: Card, end_x: number, end_y: number){
         this.scene.add.tween({
             targets: object,
@@ -73,16 +71,18 @@ class DropZone extends Phaser.GameObjects.Zone{
     card: Card | null = null;
     scene: Phaser.Scene;
     graphics: Phaser.GameObjects.Graphics;
+    color: number;
 
-    constructor(_scene: Phaser.Scene, x: number, y: number, width: number, height: number){
+    constructor(_scene: Phaser.Scene, x: number, y: number, width: number, height: number, color : number){
         super(_scene, x, y, width, height);
+        this.color = color
         this.setRectangleDropZone(width, height);
         this.scene = _scene;
         this.graphics = _scene.add.graphics();
     }
 
     addedToScene(){
-        this.graphics.lineStyle(2, 0x592D2D);
+        this.graphics.lineStyle(2, this.color);
         this.graphics.strokeRect(this.x - this.input.hitArea.width / 2, this.y - this.input.hitArea.height / 2, this.input.hitArea.width, this.input.hitArea.height);
     }
 
@@ -113,25 +113,30 @@ export default class CardsScene extends Phaser.Scene
     }
     
     //create stack of cards
-    cardsCreate(amount, x, y, width, height, margin){
+    cardsCreate(amount, x, y, width, height, margin, scale_multiplier){
         var frames = this.textures.get('cards').getFrameNames();
 
-        for (var i = 0; i < amount; i++)
+        for (var i = 0; i < amount; i++) 
         {   
             var card = new Card(this, x, y, 'cards', Phaser.Math.RND.pick(frames));
+            card.scale = scale_multiplier;
+
             this.add.existing(card);
 
-            x += margin + width;
+            x += (margin + width) * scale_multiplier;
         }
     }
 
-    dropZonesCreate(amount, x, y, width, height, margin){
+    //create DropZones for cards
+    dropZonesCreate(amount, x, y, width, height, margin, scale_multiplier, color){
 
-        for (var i = 0; i < amount; i++){
-            let dropZone = new DropZone (this, x, y, width + margin, height + margin);
+        for (var i = 0; i < amount; i++) 
+        {
+            let dropZone = new DropZone (this, x, y, (width + margin) * scale_multiplier, (height + margin) * scale_multiplier, color);
             this.add.existing(dropZone);
             this.zones.push(dropZone);
-            x += width + margin;
+
+            x += (margin + width) * scale_multiplier;
         }
     }
 
@@ -170,22 +175,60 @@ export default class CardsScene extends Phaser.Scene
 
     }
     
-    //create DropZones for cards
+    
     create ()
     {
-        //cards sizes
-        var width = 140;
-        var height = 190;
+        ///(Yeah I know my english is bad)
 
-        this.cardsCreate(8, 100, 450, width, height, 3);
-        this.dropZonesCreate(6, 100, 200, width, height, 10);
+        ///------------------------------------------------spawning cards---------------------------------------------------
+        //I think that you wanna change theese varibles and don't wanna change the others
+        var scale_multiplier = 0.7;                             //this thing multiplies by original sizes of zones, cards and margin
+        var cards_margin = 8;                                  //space between cards
+        var offset_from_bottom = 10;                            //space between bottom and cards
+        var space_between_cards_and_zones = 30;                 //space between cards and zones (it will be multiplied by scale_multiplier)
+        var cards_amount = 5;                                   //amount of cards
+        var color = 0x592D2D;                                   //main color
+        
+
+        var scene_height = this.sys.game.scale.gameSize.height;
+        var scene_width = this.sys.game.scale.gameSize.width;
+
+        //cards sizes (I just don't know how to get them from atlas)
+        var cards_width = 140;
+        var cards_height = 190;
+
+        
+
+    
+        //Starting point to create drop zones and cards
+        var start_x = scene_width / 2 - (cards_width + cards_margin) * scale_multiplier * cards_amount / 2;
+        var start_y = scene_height - (cards_height / 2 + offset_from_bottom);
+
+        var line = this.add.graphics();
+        line.lineStyle(3, color);
+        line.lineBetween(
+            0, 
+            start_y - (cards_height + cards_margin + space_between_cards_and_zones) * scale_multiplier * 1.5,   
+            scene_width,
+            start_y - (cards_height + cards_margin + space_between_cards_and_zones) * scale_multiplier * 1.5
+        );
+        
+
+        //Creating cards and zones
+        this.cardsCreate(cards_amount, start_x, start_y, cards_width, cards_height, cards_margin, scale_multiplier);
+        this.dropZonesCreate(cards_amount, start_x, start_y - (cards_height + cards_margin + space_between_cards_and_zones) * scale_multiplier, cards_width, cards_height, cards_margin, scale_multiplier, color);
+        //this.add.rectangle(start_x - (cards_height + cards_margin) * scale_multiplier / 2, start_x - (cards_width + cards_margin) * scale_multiplier / 2, , height, fillColor);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        //making cards move 
         this.cardsMovement();
         
         //*********************debug********************
         for (var i = 0; i < this.zones.length; i++){
-            this.output.push(this.add.text(1000, 100 + i * 20, "aboba"));
+            this.output.push(this.add.text(0, i * 20, "aboba"));
         }
         ////////////////////////////////////////////////
+
         
     }
 

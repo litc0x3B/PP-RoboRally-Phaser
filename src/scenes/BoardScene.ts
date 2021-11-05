@@ -1,8 +1,6 @@
 import Phaser, { Game, Input } from 'phaser'
 import game from '~/main';
 
-//new Phaser.Game(config);
-
 export default class BoardScene extends Phaser.Scene{
 
     blcr!: Phaser.GameObjects.Image;
@@ -37,6 +35,7 @@ export default class BoardScene extends Phaser.Scene{
         });
 
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.scene.launch("CardsScene");
     }
 
     update(){  
