@@ -8,14 +8,15 @@ const config = {
 	physics: {
 		default: 'arcade',
 		arcade: {
-			gravity: { y: 200 }
+			gravity: { y: 0}
 		}
 	},
-	scene: [CardsScene]
+	scene: [BoardScene]
 }
 
 var game = new Phaser.Game(config);
 
-import CardsScene from './scenes/CardsScene'
+//import CardsScene from './scenes/CardsScene';
+import BoardScene from './scenes/BoardScene';
 
 export default game;

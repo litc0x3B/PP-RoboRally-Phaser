@@ -178,7 +178,7 @@ export default class CardsScene extends Phaser.Scene
         var height = 190;
 
         this.cardsCreate(8, 100, 450, width, height, 3);
-        this.dropZonesCreate(5, 100, 200, width, height, 10);
+        this.dropZonesCreate(6, 100, 200, width, height, 10);
         this.cardsMovement();
         
         //*********************debug********************
