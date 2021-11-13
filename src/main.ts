@@ -11,7 +11,7 @@ const config = {
 	physics: {
 		default: 'arcade',
 		arcade: {
-			gravity: { y: 0}
+			debug: true
 		}
 	},
 	scene: [BoardScene, CardsScene]
@@ -20,4 +20,3 @@ const config = {
 
 var game = new Phaser.Game(config);
 
-export default game;

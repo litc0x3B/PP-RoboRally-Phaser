@@ -1,7 +1,13 @@
 import Phaser, { Game, Input } from 'phaser'
-import game from '~/main';
 
-class Card extends Phaser.GameObjects.Image{
+// enum CardTypes {
+//     move_forward = "move_forward",
+//     move_backward = "move_backward",
+//     rotate_right = "rotate_right",
+//     rotate_left = "rotate_left" 
+// }
+
+ class Card extends Phaser.GameObjects.Image{
     startX: number;
     startY: number;
     cardType: string;
@@ -67,7 +73,7 @@ class Card extends Phaser.GameObjects.Image{
 
 }
 
-class DropZone extends Phaser.GameObjects.Zone{
+export class DropZone extends Phaser.GameObjects.Zone{
     card: Card | null = null;
     scene: Phaser.Scene;
     graphics: Phaser.GameObjects.Graphics;
@@ -182,11 +188,12 @@ export default class CardsScene extends Phaser.Scene
 
         ///------------------------------------------------spawning cards---------------------------------------------------
         //I think that you wanna change theese varibles and don't wanna change the others
-        var scale_multiplier = 0.7;                             //this thing multiplies by original sizes of zones, cards and margin
+        var scale_multiplier = 0.5;                             //this thing multiplies by original sizes of zones, cards and margin
         var cards_margin = 8;                                  //space between cards
-        var offset_from_bottom = 10;                            //space between bottom and cards
+        var offset_from_bottom = 5;                            //space between bottom and cards
         var space_between_cards_and_zones = 30;                 //space between cards and zones (it will be multiplied by scale_multiplier)
-        var cards_amount = 5;                                   //amount of cards
+        var cards_amount = 8;                                   //amount of cards
+        var zones_amount = 5;                                   //amount of zones
         var color = 0x592D2D;                                   //main color
         
 
@@ -201,8 +208,9 @@ export default class CardsScene extends Phaser.Scene
 
     
         //Starting point to create drop zones and cards
-        var start_x = scene_width / 2 - (cards_width + cards_margin) * scale_multiplier * cards_amount / 2;
-        var start_y = scene_height - (cards_height / 2 + offset_from_bottom);
+        var start_x_cards = scene_width / 2 - (cards_width + cards_margin) * scale_multiplier * cards_amount / 2;
+        var start_x_zones = scene_width / 2 - (cards_width + cards_margin) * scale_multiplier * zones_amount / 2; 
+        var start_y = scene_height - (cards_height / 4 + offset_from_bottom);
 
         var line = this.add.graphics();
         line.lineStyle(3, color);
@@ -215,13 +223,14 @@ export default class CardsScene extends Phaser.Scene
         
 
         //Creating cards and zones
-        this.cardsCreate(cards_amount, start_x, start_y, cards_width, cards_height, cards_margin, scale_multiplier);
-        this.dropZonesCreate(cards_amount, start_x, start_y - (cards_height + cards_margin + space_between_cards_and_zones) * scale_multiplier, cards_width, cards_height, cards_margin, scale_multiplier, color);
-        //this.add.rectangle(start_x - (cards_height + cards_margin) * scale_multiplier / 2, start_x - (cards_width + cards_margin) * scale_multiplier / 2, , height, fillColor);
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        this.cardsCreate(cards_amount, start_x_cards, start_y, cards_width, cards_height, cards_margin, scale_multiplier);
+        this.dropZonesCreate(zones_amount, start_x_zones, start_y - (cards_height + cards_margin + space_between_cards_and_zones) * scale_multiplier, cards_width, cards_height, cards_margin, scale_multiplier, color);
+        //-------------------------------------------------------------------------------------------------------------------------------------------
 
         //making cards move 
         this.cardsMovement();
+
+
         
         //*********************debug********************
         for (var i = 0; i < this.zones.length; i++){
@@ -229,7 +238,6 @@ export default class CardsScene extends Phaser.Scene
         }
         ////////////////////////////////////////////////
 
-        
     }
 
     update(){
