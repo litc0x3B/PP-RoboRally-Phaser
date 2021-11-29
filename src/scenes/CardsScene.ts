@@ -1,4 +1,5 @@
 import Phaser, { Game, Input } from 'phaser'
+import eventsCenter from './EventCenter';
 
 // enum CardTypes {
 //     move_forward = "move_forward",
@@ -105,6 +106,7 @@ export default class CardsScene extends Phaser.Scene
 {
     output: Array<Phaser.GameObjects.Text> = [];
     zones: Array<DropZone> = [];
+    cards: Array<Card> = [];
 
 	constructor()
 	{
@@ -113,9 +115,9 @@ export default class CardsScene extends Phaser.Scene
 
 	preload()
     {
-        //this.load.atlas('cards', 'cards/cards.png', 'cards/cards.json');
-        this.load.setBaseURL('http://labs.phaser.io')
-        this.load.atlas('cards', 'assets/atlas/cards.png', 'assets/atlas/cards.json');
+        this.load.atlas('cards', 'sprites/cards.png', 'sprites/cards.json');
+        this.load.image('button', 'sprites/button.png');
+        this.load.image('buttonHighlighted', 'sprites/buttonHighlighted.png');
     }
     
     //create stack of cards
@@ -124,11 +126,18 @@ export default class CardsScene extends Phaser.Scene
 
         for (var i = 0; i < amount; i++) 
         {   
-            var card = new Card(this, x, y, 'cards', Phaser.Math.RND.pick(frames));
+            
+            if (Phaser.Math.RND.realInRange(0, 100) <= 25){
+                var card = new Card(this, x, y, 'cards', 'moveForward.png');
+            }
+            else
+                var card = new Card(this, x, y, 'cards', Phaser.Math.RND.pick(frames));
+
             card.scale = scale_multiplier;
 
             this.add.existing(card);
-
+            this.cards.push(card);
+    
             x += (margin + width) * scale_multiplier;
         }
     }
@@ -201,8 +210,8 @@ export default class CardsScene extends Phaser.Scene
         var scene_width = this.sys.game.scale.gameSize.width;
 
         //cards sizes (I just don't know how to get them from atlas)
-        var cards_width = 140;
-        var cards_height = 190;
+        var cards_width = 181;
+        var cards_height = 248;
 
         
 
@@ -229,8 +238,44 @@ export default class CardsScene extends Phaser.Scene
 
         //making cards move 
         this.cardsMovement();
+        
 
 
+        const clickButton = this.add.image(1300, 700, 'button').setInteractive();
+
+        clickButton.on('pointerover', () => clickButton.setTexture('buttonHighlighted'));
+        clickButton.on('pointerout', () => clickButton.setTexture('button'))
+                                    
+        clickButton.on('pointerdown', () => {
+            let moves: Array<string> = [];
+            let flag = true;
+
+            for (var drop_zone of this.zones){
+               if (drop_zone.getCardType() == "empty"){
+                   flag = false;
+                   break;
+               }
+                   moves.push(drop_zone.getCardType());      
+            }
+
+            if (flag){
+                eventsCenter.emit('make-move', moves, 0);
+
+                while(this.cards.length){
+                    this.cards[this.cards.length - 1].destroy(true);
+                    this.cards.pop();
+                }
+                
+                for(let drop_zone of this.zones){
+                    drop_zone.card = null;
+                }
+
+                this.cardsCreate(cards_amount, start_x_cards, start_y, cards_width, cards_height, cards_margin, scale_multiplier);  
+            }
+
+        });
+
+        clickButton.scale = 0.05;
         
         //*********************debug********************
         for (var i = 0; i < this.zones.length; i++){
