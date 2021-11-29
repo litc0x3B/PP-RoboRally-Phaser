@@ -1,7 +1,9 @@
+import { Bounds } from 'matter';
 import Phaser, { Game, Input } from 'phaser'
 import eventsCenter from './EventCenter';
 
-class Robot extends Phaser.GameObjects.Sprite {
+class Robot extends  Phaser.GameObjects.Image {
+    body: Phaser.Physics.Arcade.Body = this.body;
     scene: Phaser.Scene;
 
     step_length = 50;
@@ -18,6 +20,7 @@ class Robot extends Phaser.GameObjects.Sprite {
     constructor(scene: Phaser.Scene, x: number, y: number, img: string){
         super(scene, x, y, img);
         this.scene = scene;
+        //new Phaser.Physics.Arcade.Body(scene.game, this);
     }
 
     executeCommand(card_type){
@@ -55,6 +58,7 @@ class Robot extends Phaser.GameObjects.Sprite {
 
     addedToScene(){
         this.scene.physics.add.existing(this);
+        this.body.setImmovable(true);
     }
 
 }
@@ -62,7 +66,7 @@ class Robot extends Phaser.GameObjects.Sprite {
 export default class BoardScene extends Phaser.Scene{
 
     blcr!: Phaser.GameObjects.Image;
-    block!: Phaser.GameObjects.Image;
+    block!:  Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
     clown!: Phaser.GameObjects.Image;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -79,18 +83,28 @@ export default class BoardScene extends Phaser.Scene{
 
     create(){
         
-        
         this.add.image(0, 0, 'grid');
-        this.block = this.physics.add.image(200, 300, 'block').setDamping(true).setDrag(0.1);
+        this.block = this.physics.add.image(200, 300, 'block').setFriction(0);//.setDamping(true).setDrag(10);
+        this.block.body.setImmovable();
+        
+        let robots = this.physics.add.group({});
+
+        let robot1 = new Robot(this, 200, 200, 'clown');
+        robots.add(robot1);
+        this.add.existing(robot1);
+
+        let robot2 = new Robot(this, 300, 300, 'clown');
+        this.add.existing(robot2);
+        robots.add(robot2);
+
+        this.physics.add.collider(robots, robots);
+        this.physics.add.collider(robots, this.block);
         
 
-        let robot = new Robot(this, 200, 200, 'clown');
-
-        this.physics.add.collider(robot, this.block);
-        this.add.existing(robot);
+        this
 
         this.scene.launch("CardsScene");
-        robot.makeMove(["turnRight", "moveForward", "turnRight", "moveBackward"]);
+        robot1.makeMove(["turnRight", "moveForward", "turnRight", "moveBackward"]);
         //eventsCenter.on("make-move", this.makeMove, this);
     }
 
