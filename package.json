@@ -33,10 +33,5 @@
 	"staticFiles": {
 		"staticPath": "public",
 		"watcherGlob": "**"
-	},
-	"typeRoots": [
-		"./node_modules/phaser/types"
-	]
+	}
 }
-
-
