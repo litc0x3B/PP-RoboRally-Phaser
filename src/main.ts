@@ -5,16 +5,16 @@ import BoardScene from './scenes/BoardScene';
 
 const config = {
 	type: Phaser.AUTO,
-	width: 1920,
-	height: 900,
-	backgroundColor: '#148C6A',
+	width: window.innerWidth - 10,
+	height: window.innerHeight - 10,
+	//backgroundColor: '#148C6A',
 	physics: {
 		default: 'arcade',
 		arcade: {
 			debug: true
 		}
 	},
-	scene: [BoardScene, CardsScene]
+	scene: [CardsScene, BoardScene]
 }
 
 
