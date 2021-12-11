@@ -48,7 +48,6 @@ export default class Robot extends MySprite {
             ((is_obj_robot) && obj?.move(x, y))) {
 
             this.changePos(x + this.x, y + this.y);
-            console.log(tile.index);
             
             //tile is a pit
             if (tile.index == GameObjectIndex.pit) {
@@ -70,10 +69,11 @@ export default class Robot extends MySprite {
                 });
             }
 
+
             //tile is a checkpoint
             if (tile.index == GameObjectIndex.checkpoint) {
-                this.resp.x = this.x;
-                this.resp.y = this.y;
+                this.resp.x = x + this.x;
+                this.resp.y = y + this.y;
             }
 
             return true;
