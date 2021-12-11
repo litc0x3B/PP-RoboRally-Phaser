@@ -124,7 +124,6 @@ export default class CardsScene extends Phaser.Scene
         var start_y = scene_height - (cards_height / 2 + offset_from_bottom) * scale_multiplier;
         
         var top_border = start_y - (cards_height + cards_margin + space_between_cards_and_zones) * scale_multiplier * 1.5;
-        console.log(top_border);
 
         //line in the top border of HUD
         var line = this.add.graphics();
@@ -184,20 +183,5 @@ export default class CardsScene extends Phaser.Scene
 
         this.scene.launch('BoardScene', {top_border: top_border});
         this.scene.moveAbove('BoardScene', 'CardsScene');
-        
-        //*********************debug********************
-        for (var i = 0; i < this.zones.length; i++){
-            this.output.push(this.add.text(0, i * 20, "null"));
-        }
-        ////////////////////////////////////////////////
-
-    }
-
-    update(){
-        /////////////////////////////////debug/////////////////////////
-        for (var i = 0; i < this.output.length; i++){
-                this.output[i].text = this.zones[i].getCardType();     
-        }
-        ///////////////////////////////////////////////////////////////////
     }
 }

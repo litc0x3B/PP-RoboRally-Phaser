@@ -8,7 +8,7 @@ export default class Card extends Phaser.GameObjects.Image{
     scene: Phaser.Scene;
     draggingFrom: DropZone | null = null;
 
-    constructor(_scene :Phaser.Scene, x: number, y: number, texture: string, frame: string){
+    constructor(_scene: Phaser.Scene, x: number, y: number, texture: string, frame: string){
         super(_scene, x, y, texture, frame);
         this.startX = x;
         this.startY = y;

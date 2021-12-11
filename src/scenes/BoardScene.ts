@@ -7,10 +7,6 @@ import Robot from '~/gameObjects/Robot';
 
 ///////////////////////////////SCENE////////////////////////////////////////////////////////////////
 export default class BoardScene extends Phaser.Scene{
-
-    clown!: Phaser.GameObjects.Image;
-    cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-
     HUD_top_border!: number;
 
    constructor()
@@ -52,15 +48,15 @@ export default class BoardScene extends Phaser.Scene{
 
         var robot1_x = 1;
         var robot1_y = 1;
-        var robot2_x = 2;
+        var robot2_x = 3;
         var robot2_y = 1;
         
         let robot1 = new Robot(this, tile_size / 2 + tile_size * robot1_x, tile_size / 2 + tile_size * robot1_y, 'robot1', grid);
         robot1.scale = scale;
-        let robot2 = new Robot(this, tile_size / 2 + tile_size * robot2_x, tile_size / 2 + tile_size * robot2_y, 'robot2', grid);
-        robot2.scale = scale
-
         this.add.existing(robot1);
+
+        let robot2 = new Robot(this, tile_size / 2 + tile_size * robot2_x, tile_size / 2 + tile_size * robot2_y, 'robot2', grid);
+        robot2.scale = scale;
         this.add.existing(robot2);
 
         eventsCenter.on("make-move", robot1.makeMove, robot1);

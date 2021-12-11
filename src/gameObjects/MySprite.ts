@@ -5,7 +5,7 @@ export enum GameObjectIndex{
     free = 0,
     wall = 1,
     pit = 2,
-    checkpoint = 2,
+    checkpoint = 3,
     robot = 10
 }
 
